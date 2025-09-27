@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 function Actividad({activities, setActivities, duration, setDuration, calories, setCalories}) {
   const [showModal, setShowModal] = useState(false);
   const [activityType, setActivityType] = useState("running");
-  
+  const [customActivity, setCustomActivity] = useState(""); // NUEVO ESTADO
+
   const navigate = useNavigate();
 
   // Calcular estadísticas
@@ -18,9 +19,11 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
       return;
     }
 
+    const type = customActivity.trim() !== "" ? customActivity.trim() : activityType;
+
     const newActivity = {
       id: Date.now(),
-      type: activityType,
+      type: type,
       duration: parseInt(duration),
       calories: calories ? parseInt(calories) : 0,
       date: new Date().toLocaleDateString('es-ES')
@@ -30,6 +33,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
     setShowModal(false);
     setDuration(30);
     setCalories("");
+    setCustomActivity(""); // limpiar input
   };
 
   const getActivityName = (type) => {
@@ -305,7 +309,26 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
             <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: "#2c3e50" }}>
               Añadir Actividad
             </h3>
-            
+
+            {/* NUEVO INPUT para actividad personalizada */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
+                Actividad personalizada (opcional)
+              </label>
+              <input
+                type="text"
+                placeholder="Ej: Escalada, Pilates..."
+                value={customActivity}
+                onChange={(e) => setCustomActivity(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.5rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.5rem",
+                }}
+              />
+            </div>
+
             <div style={{ marginBottom: "1rem" }}>
               <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
                 Tipo de actividad
@@ -328,7 +351,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 <option value="yoga">Yoga</option>
               </select>
             </div>
-            
+
             <div style={{ marginBottom: "1rem" }}>
               <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
                 Duración (min)
@@ -346,7 +369,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 }}
               />
             </div>
-            
+
             <div style={{ marginBottom: "1.5rem" }}>
               <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
                 Calorías (opcional)
@@ -365,7 +388,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 }}
               />
             </div>
-            
+
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
               <button
                 onClick={() => setShowModal(false)}

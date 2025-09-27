@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Hidratacion({ vasos, setVasos, metaAgua }) {
-  const progreso = (vasos / 8) * 100;
+function Hidratacion({ vasos, setVasos, metaAgua, setMetaAgua }) {
+  const progreso = (vasos / metaAgua) * 100;
   const aguaConsumida = vasos * 250; // suponiendo 250ml por vaso
-  const vasosRestantes = Math.max(8 - vasos, 0);
+  const vasosRestantes = Math.max(metaAgua - vasos, 0);
 
   const navigate = useNavigate(); 
 
@@ -53,6 +53,20 @@ function Hidratacion({ vasos, setVasos, metaAgua }) {
             <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
               Mantén tu cuerpo hidratado
             </p>
+          </div>
+
+          {/* Input para cambiar meta diaria */}
+          <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+            <label style={{ fontSize: "0.875rem", color: "#6b7280", marginRight: "0.5rem" }}>
+              Meta diaria:
+            </label>
+            <input 
+              type="number" 
+              value={metaAgua} 
+              onChange={(e) => setMetaAgua(Number(e.target.value))} 
+              min={1}
+              style={{ width: "60px", padding: "0.25rem", borderRadius: "0.25rem", border: "1px solid #d1d5db", textAlign: "center" }}
+            />
           </div>
 
           {/* Contador */}
