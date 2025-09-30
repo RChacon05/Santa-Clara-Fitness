@@ -27,7 +27,8 @@ function Sueno() {
   const [showModal, setShowModal] = useState(false);
 
   // Inputs
-  const hoyStr = new Date().toISOString().slice(0, 10);
+  const hoy = new Date();
+  const hoyStr = hoy.toISOString().slice(0, 10);
   const [fecha, setFecha] = useState(hoyStr);
   const [horas, setHoras] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -46,6 +47,13 @@ function Sueno() {
     const h = parseFloat(horas);
     if (Number.isNaN(h) || h <= 0 || h > 24) {
       alert("Ingresa un número válido de horas (1-24)");
+      return;
+    }
+
+    // Validar que la fecha no sea futura
+    const fechaSeleccionada = new Date(fecha);
+    if (fechaSeleccionada > hoy) {
+      alert("No puedes agregar registros para fechas futuras");
       return;
     }
 
@@ -87,20 +95,21 @@ function Sueno() {
 
   const progreso = Math.min(100, Math.round((sumaHoy / metaHoras) * 100));
 
-  // Últimos 7 días
-  function fechasUltimos7() {
-    const arr = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      arr.push(d.toISOString().slice(0, 10));
+    // Últimos 7 días (desde hoy hacia atrás)
+    function fechasUltimos7() {
+      const arr = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        arr.push(d.toISOString().slice(0, 10));
+      }
+      return arr;
     }
-    return arr;
-  }
 
-  const ult7 = fechasUltimos7();
-  const promedio7 =
-    Math.round(
+    const ult7 = fechasUltimos7();
+
+    // Calcular promedio de los últimos 7 días
+    const promedio7 = Math.round(
       (ult7.reduce(
         (total, d) =>
           total +
@@ -110,22 +119,134 @@ function Sueno() {
         0
       ) /
         7) *
-        10
+      10
     ) / 10;
+
+    // Datos para el gráfico de los últimos 7 días
+    const datosGrafico = ult7.map(fecha => {
+      const horasDia = registros
+        .filter(r => r.fecha === fecha)
+        .reduce((total, r) => total + r.horas, 0);
+      
+      const fechaObj = new Date(fecha);
+      const nombreDia = fechaObj.toLocaleDateString('es-ES', { weekday: 'short' });
+      const diaMes = fechaObj.getDate();
+      
+      return {
+        fecha,
+        nombreDia,
+        diaMes,
+        horas: horasDia,
+        esHoy: fecha === hoyStr
+      };
+    });
+
+  // Función para renderizar el gráfico
+  const renderGrafico = () => {
+    const maxHoras = Math.max(metaHoras, ...datosGrafico.map(d => d.horas), 1);
+    
+    return (
+      <div style={{ marginTop: "1rem" }}>
+        <div style={{ 
+          fontSize: "0.6rem", 
+          color: "#9ca3af", 
+          textAlign: "center",
+          marginBottom: "8px"
+        }}>
+          Hoy: {hoyStr} | Rango: {datosGrafico[0]?.fecha} - {datosGrafico[6]?.fecha}
+        </div>
+        
+        <div style={{ 
+          display: "flex", 
+          alignItems: "flex-end", 
+          justifyContent: "space-between",
+          height: "140px",
+          gap: "4px"
+        }}>
+          {datosGrafico.map((dia, index) => (
+            <div key={dia.fecha} style={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              alignItems: "center",
+              flex: 1
+            }}>
+              <div style={{ 
+                fontSize: "0.7rem", 
+                color: "#6b7280",
+                marginBottom: "4px",
+                fontWeight: dia.esHoy ? "600" : "400",
+                textAlign: "center"
+              }}>
+                <div>{dia.nombreDia}</div>
+                <div style={{ 
+                  fontSize: "0.6rem",
+                  color: "#9ca3af"
+                }}>
+                  {dia.diaMes}
+                </div>
+                {/* Mostrar las horas aquí, debajo del día */}
+                {dia.horas > 0 && (
+                  <div style={{
+                    fontSize: "0.7rem",
+                    color: "#374151",
+                    fontWeight: "600",
+                    marginTop: "2px"
+                  }}>
+                    {dia.horas}h
+                  </div>
+                )}
+              </div>
+              <div style={{ 
+                width: "100%", 
+                backgroundColor: dia.horas >= metaHoras ? "#34d399" : 
+                              dia.horas > metaHoras/2 ? "#3498db" : 
+                              dia.horas <= metaHoras/2 && dia.horas > 0 ?  "#ef4444" :"#e5e7eb",
+                height: `${(dia.horas / maxHoras) * 80}px`,
+                borderRadius: "4px 4px 0 0",
+                minHeight: "4px"
+              }}>
+                {/* Eliminamos el texto de horas que estaba aquí dentro */}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Línea de meta */}
+        <div style={{ 
+          position: "relative", 
+          height: "1px", 
+          backgroundColor: "#ef4444",
+          marginTop: "8px",
+          marginBottom: "16px"
+        }}>
+          <span style={{
+            position: "absolute",
+            right: "0",
+            top: "-8px",
+            fontSize: "0.7rem",
+            color: "#ef4444",
+            backgroundColor: "white",
+            padding: "0 4px"
+          }}>
+            Meta: {metaHoras}h
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
+        height: "100vh",
+        width: "100%",
         backgroundColor: "#f9fafb",
         fontFamily: "sans-serif",
       }}
     >
-      {/* Contenido */}
-      <div style={{ flex: 1, padding: "1rem" }}>
-        <div style={{ maxWidth: "300px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
           {/* Botón de regreso */}
           <button
             onClick={() => navigate("/")}
@@ -143,22 +264,34 @@ function Sueno() {
             ←
           </button>
 
-          {/* Header */}
-          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-            <h1
-              style={{
-                fontSize: "1.25rem",
-                fontWeight: "600",
-                color: "#2c3e50",
-              }}
-            >
-              ⏰ Sueño
-            </h1>
-            <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-              Registra tus horas de descanso
-            </p>
+            {/* Header */}
+            <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+              <h1
+                style={{
+                  fontSize: "1.25rem",
+                  fontWeight: "600",
+                  color: "#2c3e50",
+                }}
+              >
+                ⏰ Sueño
+              </h1>
+              <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                Registra tus horas de descanso
+              </p>
+            </div>
           </div>
-
+      {/* Contenido */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          padding: "1rem",
+          overflowY: "auto",
+        }}
+      >
+        {/* Contenedor de 300px */}
+        <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
           <div
             style={{ height: "1px", backgroundColor: "#e5e7eb", margin: "1rem 0" }}
           />
@@ -205,6 +338,30 @@ function Sueno() {
               >
                 Promedio 7 días: <strong>{promedio7} h</strong>
               </div>
+            </div>
+          </div>
+
+          {/* Gráfico de sueño */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <h3
+              style={{
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                marginBottom: "0.5rem",
+                color: "#2c3e50",
+              }}
+            >
+              Últimos 7 días
+            </h3>
+            <div
+              style={{
+                background: "white",
+                padding: "1rem",
+                borderRadius: "1rem",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              }}
+            >
+              {renderGrafico()}
             </div>
           </div>
 
@@ -360,6 +517,7 @@ function Sueno() {
                 type="date"
                 value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
+                max={hoyStr} // No permite fechas futuras
                 style={{
                   width: "100%",
                   padding: "0.5rem",
@@ -493,6 +651,18 @@ function Sueno() {
                 }}
               >
                 ⏰
+            </button>
+            <button
+              onClick={() => navigate("/dieta")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#e5e7eb",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+              }}
+            >
+              🍽️
             </button>
           </div>
         </div>

@@ -13,24 +13,14 @@ function Hidratacion({ vasos, setVasos, metaAgua, setMetaAgua }) {
       style={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
+        height: "100vh",
+        width: "100%",
         backgroundColor: "#f9fafb",
         fontFamily: "sans-serif",
       }}
     >
-      {/* Contenido principal */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          padding: "1rem",
-          overflowY: "auto",
-        }}
-      >
-        {/* Contenedor de 300px */}
-        <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
-          {/* Botón de regreso */}
+      <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
+      {/* Botón de regreso */}
           <button
             onClick={() => navigate("/")}
             style={{
@@ -46,7 +36,6 @@ function Hidratacion({ vasos, setVasos, metaAgua, setMetaAgua }) {
           >
             ←
           </button>
-
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: "1rem" }}>
             <h1 style={{ fontSize: "1.25rem", fontWeight: "600" }}>💧 Hidratación</h1>
@@ -54,6 +43,19 @@ function Hidratacion({ vasos, setVasos, metaAgua, setMetaAgua }) {
               Mantén tu cuerpo hidratado
             </p>
           </div>
+      </div>
+      {/* Contenido principal */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          padding: "1rem",
+          overflowY: "auto",
+        }}
+      >
+        {/* Contenedor de 300px */}
+        <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
 
           {/* Input para cambiar meta diaria */}
           <div style={{ marginBottom: "1rem", textAlign: "center" }}>
@@ -227,6 +229,18 @@ function Hidratacion({ vasos, setVasos, metaAgua, setMetaAgua }) {
               >
                 ⏰
               </button>
+              <button
+              onClick={() => navigate("/dieta")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#e5e7eb",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+              }}
+            >
+              🍽️
+            </button>
           </div>
         </div>
       </div>

@@ -159,6 +159,9 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
                 ? "No hay actividades registradas hoy"
                 : "Ver actividades"}
             </p>
+            <p style={{ fontSize: "0.875rem", color: "#6b7280", margin: "0.25rem 0" }}>
+              👟 8432 pasos
+            </p>
           </div>
 
           {/* Tarjeta Sueño */}
@@ -299,6 +302,18 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
               }}
             >
               ⏰
+            </button>
+            <button
+              onClick={() => navigate("/dieta")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#e5e7eb",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+              }}
+            >
+              🍽️
             </button>
           </div>
         </div>

@@ -4,14 +4,26 @@ import { useNavigate } from "react-router-dom";
 function Actividad({activities, setActivities, duration, setDuration, calories, setCalories}) {
   const [showModal, setShowModal] = useState(false);
   const [activityType, setActivityType] = useState("running");
-  const [customActivity, setCustomActivity] = useState(""); // NUEVO ESTADO
+  const [customActivity, setCustomActivity] = useState("");
 
   const navigate = useNavigate();
 
-  // Calcular estadísticas
-  const totalMinutes = activities.reduce((total, activity) => total + activity.duration, 0);
-  const totalCalories = activities.reduce((total, activity) => total + (activity.calories || 0), 0);
-  const totalExercises = activities.length;
+  // Datos quemados para el contador de pasos
+  const [stepsData] = useState({
+    steps: 8432,
+    goal: 10000,
+    distance: 6.2, // km
+    calories: 320,
+    minutes: 85 // minutos de caminata estimados
+  });
+
+  // Calcular estadísticas INCLUYENDO los pasos
+  const totalMinutes = activities.reduce((total, activity) => total + activity.duration, 0) + stepsData.minutes;
+  const totalCalories = activities.reduce((total, activity) => total + (activity.calories || 0), 0) + stepsData.calories;
+  const totalExercises = activities.length + 1; // +1 por los pasos
+
+  // Calcular progreso de pasos
+  const stepsProgress = Math.min(100, (stepsData.steps / stepsData.goal) * 100);
 
   const handleAddActivity = () => {
     if (duration <= 0) {
@@ -33,7 +45,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
     setShowModal(false);
     setDuration(30);
     setCalories("");
-    setCustomActivity(""); // limpiar input
+    setCustomActivity("");
   };
 
   const getActivityName = (type) => {
@@ -53,23 +65,13 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
       style={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
+        height: "100vh",
+        width: "100%",
         backgroundColor: "#f9fafb",
         fontFamily: "sans-serif",
       }}
     >
-      {/* Contenido principal */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          padding: "1rem",
-          overflowY: "auto",
-        }}
-      >
-        {/* Contenedor de 300px */}
-        <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
+      <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
           {/* Botón de regreso */}
           <button
             onClick={() => navigate("/")}
@@ -94,6 +96,19 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
               Registra tu actividad diaria
             </p>
           </div>
+      </div>
+      {/* Contenido principal */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          padding: "1rem",
+          overflowY: "auto",
+        }}
+      >
+        {/* Contenedor de 300px */}
+        <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
 
           <div style={{ height: "1px", backgroundColor: "#e5e7eb", margin: "1rem 0" }}></div>
 
@@ -151,7 +166,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
           <div style={{ height: "1px", backgroundColor: "#e5e7eb", margin: "1rem 0" }}></div>
 
           {/* Actividades de Hoy */}
-          <div>
+          <div style={{ marginBottom: "1.5rem" }}>
             <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.5rem", color: "#2c3e50" }}>
               Actividades de Hoy
             </h3>
@@ -204,6 +219,80 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                   </div>
                 ))
               )}
+            </div>
+          </div>
+
+          {/* Contador de Pasos - MOVIDO AL FINAL */}
+          <div>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.5rem", color: "#2c3e50" }}>
+              👟 Contador de Pasos
+            </h3>
+            <div style={{
+              background: "white",
+              padding: "1rem",
+              borderRadius: "1rem",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+            }}>
+              <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+                <div style={{ fontSize: "2rem", fontWeight: "700", color: "#ef4444" }}>
+                  {stepsData.steps.toLocaleString()}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                  pasos de {stepsData.goal.toLocaleString()}
+                </div>
+              </div>
+              
+              {/* Barra de progreso */}
+              <div style={{ 
+                height: "8px", 
+                backgroundColor: "#e5e7eb", 
+                borderRadius: "4px", 
+                overflow: "hidden",
+                marginBottom: "0.5rem"
+              }}>
+                <div style={{ 
+                  height: "100%", 
+                  backgroundColor: "#ef4444", 
+                  width: `${stepsProgress}%` 
+                }}></div>
+              </div>
+              
+              <div style={{ 
+                display: "flex", 
+                justifyContent: "space-between",
+                fontSize: "0.75rem",
+                color: "#6b7280"
+              }}>
+                <span>{Math.round(stepsProgress)}% completado</span>
+                <span>{stepsData.goal - stepsData.steps} pasos restantes</span>
+              </div>
+
+              {/* Estadísticas adicionales */}
+              <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: "1fr 1fr 1fr", 
+                gap: "0.5rem",
+                marginTop: "1rem"
+              }}>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "1rem", fontWeight: "600", color: "#3498db" }}>
+                    {stepsData.distance} km
+                  </div>
+                  <div style={{ fontSize: "0.65rem", color: "#6b7280" }}>Distancia</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "1rem", fontWeight: "600", color: "#f59e0b" }}>
+                    {stepsData.calories}
+                  </div>
+                  <div style={{ fontSize: "0.65rem", color: "#6b7280" }}>Calorías</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "1rem", fontWeight: "600", color: "#10b981" }}>
+                    {stepsData.minutes}
+                  </div>
+                  <div style={{ fontSize: "0.65rem", color: "#6b7280" }}>Minutos</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -275,11 +364,23 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
             >
               ⏰
             </button>
+            <button
+              onClick={() => navigate("/dieta")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#e5e7eb",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+              }}
+            >
+              🍽️
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Modal para añadir actividad */}
+      {/* Modal para añadir actividad (se mantiene igual) */}
       {showModal && (
         <div
           style={{
@@ -310,7 +411,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
               Añadir Actividad
             </h3>
 
-            {/* NUEVO INPUT para actividad personalizada */}
+            {/* Input para actividad personalizada */}
             <div style={{ marginBottom: "1rem" }}>
               <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
                 Actividad personalizada (opcional)
