@@ -330,7 +330,7 @@
           💪
         </button>
         <button
-          onClick={() => navigate("/sueno")}
+          onClick={() => navigate("/sueño")}
           style={{
             padding: "0.5rem 1rem",
             backgroundColor: darkMode ? "#374151" : "#e5e7eb",
