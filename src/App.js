@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-route
 import Hidratacion from "./hidratacion";
 import Actividad from "./actividad";
 import Sueño from "./sueno";
-import Dieta from "./dieta"; // <-- Importamos el nuevo componente Dieta
+import Dieta from "./dieta"; 
+import { ThemeProvider, useTheme } from "./ThemeContext"; // ⬅️ Importamos el contexto
 
 // =======================
 // COMPONENTE HOME
@@ -12,9 +13,12 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
   const now = new Date();
   const progreso = (vasos / metaAgua) * 100;
   const totalExercises = activities.length;
-  const totalMeals = meals.length; // Opcional: si quieres mostrar cantidad de comidas
+  const totalMeals = meals.length;
 
   const navigate = useNavigate();
+
+  // Dark mode desde el contexto
+  const { darkMode, toggleTheme } = useTheme();
 
   // -------------------------
   // Estadísticas de sueño
@@ -55,21 +59,41 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
         flexDirection: "column",
         height: "100vh",
         width: "100%",
-        backgroundColor: "#f9fafb",
+        backgroundColor: darkMode ? "#1f2937" : "#f9fafb",
+        color: darkMode ? "white" : "black",
         fontFamily: "sans-serif",
       }}
     >
+      {/* BOTÓN MODO OSCURO/CLARO */}
+      <button
+        onClick={toggleTheme}
+        style={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          background: darkMode ? "#111827" : "#e5e7eb",
+          color: darkMode ? "white" : "black",
+          border: "none",
+          borderRadius: "9999px",
+          padding: "0.5rem 0.75rem",
+          cursor: "pointer",
+          fontSize: "0.875rem",
+        }}
+      >
+        {darkMode ? "☀️" : "🌙"}
+      </button>
+
       {/* HEADER */}
       <div
         style={{
           padding: "1rem",
-          background: "#f9fafb",
+          background: darkMode ? "#111827" : "#f9fafb",
           flexShrink: 0,
         }}
       >
         <div style={{ maxWidth: "300px", margin: "0 auto", textAlign: "center" }}>
           <h1 style={{ fontSize: "1.25rem", fontWeight: "600" }}>Mi Salud</h1>
-          <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+          <p style={{ fontSize: "0.875rem", color: darkMode ? "#d1d5db" : "#6b7280" }}>
             {now.toLocaleDateString("es-ES", {
               weekday: "long",
               day: "numeric",
@@ -94,7 +118,7 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
             onClick={() => navigate("/hidratacion")}
             style={{
               cursor: "pointer",
-              background: "white",
+              background: darkMode ? "#374151" : "white",
               padding: "1rem",
               borderRadius: "1rem",
               marginBottom: "1rem",
@@ -140,7 +164,7 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
             onClick={() => navigate("/actividad")}
             style={{
               cursor: "pointer",
-              background: "white",
+              background: darkMode ? "#374151" : "white",
               padding: "1rem",
               borderRadius: "1rem",
               marginBottom: "1rem",
@@ -169,7 +193,7 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
             onClick={() => navigate("/sueño")}
             style={{
               cursor: "pointer",
-              background: "white",
+              background: darkMode ? "#374151" : "white",
               padding: "1rem",
               borderRadius: "1rem",
               boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -216,7 +240,7 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
             onClick={() => navigate("/dieta")}
             style={{
               cursor: "pointer",
-              background: "white",
+              background: darkMode ? "#374151" : "white",
               padding: "1rem",
               borderRadius: "1rem",
               marginTop: "1rem",
@@ -225,13 +249,15 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
           >
             <h2 style={{ color: "#34d399", fontWeight: "600" }}>🍽️ Dieta</h2>
             <p style={{ fontSize: "2rem", fontWeight: "700" }}>
-              {totalMeals} <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>{totalMeals === 1 ? "comida" : "comidas"}</span>
+              {totalMeals}{" "}
+              <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                {totalMeals === 1 ? "comida" : "comidas"}
+              </span>
             </p>
             <p style={{ fontSize: "0.75rem", color: "#6b7280" }}>
               {totalMeals === 0 ? "No hay comidas registradas hoy" : "Ver comidas"}
             </p>
           </div>
-
         </div>
       </div>
 
@@ -239,7 +265,7 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
       <div
         style={{
           padding: "1rem",
-          background: "#f9fafb",
+          background: darkMode ? "#111827" : "#f9fafb",
           flexShrink: 0,
         }}
       >
@@ -253,68 +279,11 @@ function Home({ vasos, metaAgua, activities, registrosSueno, metaSueno, meals })
               marginTop: "0.5rem",
             }}
           >
-            <button
-              onClick={() => navigate("/")}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#3b82f6",
-                color: "white",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-                fontWeight: "600",
-              }}
-            >
-              🏠
-            </button>
-            <button
-              onClick={() => navigate("/hidratacion")}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-              }}
-            >
-              💧
-            </button>
-            <button
-              onClick={() => navigate("/actividad")}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-              }}
-            >
-              💪
-            </button>
-            <button
-              onClick={() => navigate("/sueño")}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-              }}
-            >
-              ⏰
-            </button>
-            <button
-              onClick={() => navigate("/dieta")}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-              }}
-            >
-              🍽️
-            </button>
+            <button onClick={() => navigate("/")} style={{ padding: "0.5rem 1rem", backgroundColor: "#3b82f6", color: "white", border: "none", borderRadius: "0.5rem", cursor: "pointer", fontWeight: "600" }}>🏠</button>
+            <button onClick={() => navigate("/hidratacion")} style={{ padding: "0.5rem 1rem", backgroundColor: "#e5e7eb", border: "none", borderRadius: "0.5rem", cursor: "pointer" }}>💧</button>
+            <button onClick={() => navigate("/actividad")} style={{ padding: "0.5rem 1rem", backgroundColor: "#e5e7eb", border: "none", borderRadius: "0.5rem", cursor: "pointer" }}>💪</button>
+            <button onClick={() => navigate("/sueño")} style={{ padding: "0.5rem 1rem", backgroundColor: "#e5e7eb", border: "none", borderRadius: "0.5rem", cursor: "pointer" }}>⏰</button>
+            <button onClick={() => navigate("/dieta")} style={{ padding: "0.5rem 1rem", backgroundColor: "#e5e7eb", border: "none", borderRadius: "0.5rem", cursor: "pointer" }}>🍽️</button>
           </div>
         </div>
       </div>
@@ -364,67 +333,69 @@ function App() {
   }, [meals]);
 
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              vasos={vasos}
-              metaAgua={metaAgua}
-              activities={activities}
-              registrosSueno={registrosSueno}
-              metaSueno={metaSueno}
-              meals={meals} // <- Pasamos estado de comidas a Home
-            />
-          }
-        />
-        <Route
-          path="/hidratacion"
-          element={
-            <Hidratacion
-              vasos={vasos} 
-              setVasos={setVasos} 
-              metaAgua={metaAgua} 
-              setMetaAgua={setMetaAgua}
-            />
-          }
-        />
-        <Route
-          path="/actividad"
-          element={
-            <Actividad
-              activities={activities}
-              setActivities={setActivities}
-              duration={duration}
-              setDuration={setDuration}
-              calories={calories}
-              setCalories={setCalories}
-            />
-          }
-        />
-        <Route
-          path="/sueño"
-          element={
-            <Sueño
-              metaSueno={metaSueno}
-              setMetaSueno={setMetaSueno}
-              registrosSueno={registrosSueno}
-              setRegistrosSueno={setRegistrosSueno}
-            />
-          }
-        />
-        <Route
-          path="/dieta"
-          element={
-            <Dieta
-              meals={meals}
-              setMeals={setMeals}
-            />
-          }
-        />
-      </Routes>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                vasos={vasos}
+                metaAgua={metaAgua}
+                activities={activities}
+                registrosSueno={registrosSueno}
+                metaSueno={metaSueno}
+                meals={meals}
+              />
+            }
+          />
+          <Route
+            path="/hidratacion"
+            element={
+              <Hidratacion
+                vasos={vasos} 
+                setVasos={setVasos} 
+                metaAgua={metaAgua} 
+                setMetaAgua={setMetaAgua}
+              />
+            }
+          />
+          <Route
+            path="/actividad"
+            element={
+              <Actividad
+                activities={activities}
+                setActivities={setActivities}
+                duration={duration}
+                setDuration={setDuration}
+                calories={calories}
+                setCalories={setCalories}
+              />
+            }
+          />
+          <Route
+            path="/sueño"
+            element={
+              <Sueño
+                metaSueno={metaSueno}
+                setMetaSueno={setMetaSueno}
+                registrosSueno={registrosSueno}
+                setRegistrosSueno={setRegistrosSueno}
+              />
+            }
+          />
+          <Route
+            path="/dieta"
+            element={
+              <Dieta
+                meals={meals}
+                setMeals={setMeals}
+              />
+            }
+          />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 

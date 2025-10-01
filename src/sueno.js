@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "./ThemeContext";
 
 function Sueno() {
   const STORAGE_KEY = "sueno_registros_v1";
   const STORAGE_META = "sueno_meta_v1";
 
+  const { darkMode } = useTheme();
   const navigate = useNavigate();
 
   // Meta diaria
@@ -49,14 +51,11 @@ function Sueno() {
       alert("Ingresa un número válido de horas (1-24)");
       return;
     }
-
-    // Validar que la fecha no sea futura
     const fechaSeleccionada = new Date(fecha);
     if (fechaSeleccionada > hoy) {
       alert("No puedes agregar registros para fechas futuras");
       return;
     }
-
     if (editingId) {
       setRegistros((prev) =>
         prev.map((r) => (r.id === editingId ? { ...r, fecha, horas: h } : r))
@@ -66,7 +65,6 @@ function Sueno() {
       const nuevo = { id: Date.now(), fecha, horas: h };
       setRegistros([nuevo, ...registros]);
     }
-
     setHoras("");
     setFecha(hoyStr);
     setShowModal(false);
@@ -95,139 +93,131 @@ function Sueno() {
 
   const progreso = Math.min(100, Math.round((sumaHoy / metaHoras) * 100));
 
-    // Últimos 7 días (desde hoy hacia atrás)
-    function fechasUltimos7() {
-      const arr = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        arr.push(d.toISOString().slice(0, 10));
-      }
-      return arr;
-    }
+  // Últimos 7 días
+  const ult7 = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toISOString().slice(0, 10);
+  });
 
-    const ult7 = fechasUltimos7();
-
-    // Calcular promedio de los últimos 7 días
-    const promedio7 = Math.round(
-      (ult7.reduce(
-        (total, d) =>
-          total +
-          registros
-            .filter((r) => r.fecha === d)
-            .reduce((s, r) => s + r.horas, 0),
-        0
-      ) /
-        7) *
+  const promedio7 = Math.round(
+    (ult7.reduce(
+      (total, d) =>
+        total +
+        registros
+          .filter((r) => r.fecha === d)
+          .reduce((s, r) => s + r.horas, 0),
+      0
+    ) /
+      7) *
       10
-    ) / 10;
+  ) / 10;
 
-    // Datos para el gráfico de los últimos 7 días
-    const datosGrafico = ult7.map(fecha => {
-      const horasDia = registros
-        .filter(r => r.fecha === fecha)
-        .reduce((total, r) => total + r.horas, 0);
-      
-      const fechaObj = new Date(fecha);
-      const nombreDia = fechaObj.toLocaleDateString('es-ES', { weekday: 'short' });
-      const diaMes = fechaObj.getDate();
-      
-      return {
-        fecha,
-        nombreDia,
-        diaMes,
-        horas: horasDia,
-        esHoy: fecha === hoyStr
-      };
-    });
+  const datosGrafico = ult7.map((fecha) => {
+    const horasDia = registros
+      .filter((r) => r.fecha === fecha)
+      .reduce((total, r) => total + r.horas, 0);
+    const fechaObj = new Date(fecha);
+    const nombreDia = fechaObj.toLocaleDateString("es-ES", { weekday: "short" });
+    const diaMes = fechaObj.getDate();
+    return { fecha, nombreDia, diaMes, horas: horasDia, esHoy: fecha === hoyStr };
+  });
 
-  // Función para renderizar el gráfico
   const renderGrafico = () => {
-    const maxHoras = Math.max(metaHoras, ...datosGrafico.map(d => d.horas), 1);
-    
+    const maxHoras = Math.max(metaHoras, ...datosGrafico.map((d) => d.horas), 1);
     return (
       <div style={{ marginTop: "1rem" }}>
-        <div style={{ 
-          fontSize: "0.6rem", 
-          color: "#9ca3af", 
-          textAlign: "center",
-          marginBottom: "8px"
-        }}>
+        <div
+          style={{
+            fontSize: "0.6rem",
+            color: darkMode ? "#9ca3af" : "#9ca3af",
+            textAlign: "center",
+            marginBottom: "8px",
+          }}
+        >
           Hoy: {hoyStr} | Rango: {datosGrafico[0]?.fecha} - {datosGrafico[6]?.fecha}
         </div>
-        
-        <div style={{ 
-          display: "flex", 
-          alignItems: "flex-end", 
-          justifyContent: "space-between",
-          height: "140px",
-          gap: "4px"
-        }}>
-          {datosGrafico.map((dia, index) => (
-            <div key={dia.fecha} style={{ 
-              display: "flex", 
-              flexDirection: "column", 
-              alignItems: "center",
-              flex: 1
-            }}>
-              <div style={{ 
-                fontSize: "0.7rem", 
-                color: "#6b7280",
-                marginBottom: "4px",
-                fontWeight: dia.esHoy ? "600" : "400",
-                textAlign: "center"
-              }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            height: "140px",
+            gap: "4px",
+          }}
+        >
+          {datosGrafico.map((dia) => (
+            <div
+              key={dia.fecha}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}
+            >
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  color: darkMode ? "#d1d5db" : "#6b7280",
+                  marginBottom: "4px",
+                  fontWeight: dia.esHoy ? "600" : "400",
+                  textAlign: "center",
+                }}
+              >
                 <div>{dia.nombreDia}</div>
-                <div style={{ 
-                  fontSize: "0.6rem",
-                  color: "#9ca3af"
-                }}>
+                <div style={{ fontSize: "0.6rem", color: darkMode ? "#9ca3af" : "#9ca3af" }}>
                   {dia.diaMes}
                 </div>
-                {/* Mostrar las horas aquí, debajo del día */}
                 {dia.horas > 0 && (
-                  <div style={{
-                    fontSize: "0.7rem",
-                    color: "#374151",
-                    fontWeight: "600",
-                    marginTop: "2px"
-                  }}>
+                  <div
+                    style={{
+                      fontSize: "0.7rem",
+                      color: darkMode ? "#f3f4f6" : "#374151",
+                      fontWeight: "600",
+                      marginTop: "2px",
+                    }}
+                  >
                     {dia.horas}h
                   </div>
                 )}
               </div>
-              <div style={{ 
-                width: "100%", 
-                backgroundColor: dia.horas >= metaHoras ? "#34d399" : 
-                              dia.horas > metaHoras/2 ? "#3498db" : 
-                              dia.horas <= metaHoras/2 && dia.horas > 0 ?  "#ef4444" :"#e5e7eb",
-                height: `${(dia.horas / maxHoras) * 80}px`,
-                borderRadius: "4px 4px 0 0",
-                minHeight: "4px"
-              }}>
-                {/* Eliminamos el texto de horas que estaba aquí dentro */}
-              </div>
+              <div
+                style={{
+                  width: "100%",
+                  backgroundColor:
+                    dia.horas >= metaHoras
+                      ? "#34d399"
+                      : dia.horas > metaHoras / 2
+                      ? "#3498db"
+                      : dia.horas <= metaHoras / 2 && dia.horas > 0
+                      ? "#ef4444"
+                      : darkMode
+                      ? "#374151"
+                      : "#e5e7eb",
+                  height: `${(dia.horas / maxHoras) * 80}px`,
+                  borderRadius: "4px 4px 0 0",
+                  minHeight: "4px",
+                }}
+              ></div>
             </div>
           ))}
         </div>
-        
-        {/* Línea de meta */}
-        <div style={{ 
-          position: "relative", 
-          height: "1px", 
-          backgroundColor: "#ef4444",
-          marginTop: "8px",
-          marginBottom: "16px"
-        }}>
-          <span style={{
-            position: "absolute",
-            right: "0",
-            top: "-8px",
-            fontSize: "0.7rem",
-            color: "#ef4444",
-            backgroundColor: "white",
-            padding: "0 4px"
-          }}>
+        <div
+          style={{
+            position: "relative",
+            height: "1px",
+            backgroundColor: "#ef4444",
+            marginTop: "8px",
+            marginBottom: "16px",
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              right: "0",
+              top: "-8px",
+              fontSize: "0.7rem",
+              color: "#ef4444",
+              backgroundColor: darkMode ? "#111827" : "white",
+              padding: "0 4px",
+            }}
+          >
             Meta: {metaHoras}h
           </span>
         </div>
@@ -242,210 +232,119 @@ function Sueno() {
         flexDirection: "column",
         height: "100vh",
         width: "100%",
-        backgroundColor: "#f9fafb",
+        backgroundColor: darkMode ? "#1f2937" : "#f9fafb",
         fontFamily: "sans-serif",
+        color: darkMode ? "#f9fafb" : "#111827",
       }}
     >
       <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
-          {/* Botón de regreso */}
-          <button
-            onClick={() => navigate("/")}
-            style={{
-              marginBottom: "1rem",
-              padding: "0.25rem 0.75rem",
-              backgroundColor: "#f3f4f6",
-              color: "#111827",
-              borderRadius: "0.5rem",
-              border: "none",
-              cursor: "pointer",
-              fontWeight: "600",
-            }}
-          >
-            ←
-          </button>
+        <button
+          onClick={() => navigate("/")}
+          style={{
+            marginBottom: "1rem",
+            padding: "0.25rem 0.75rem",
+            backgroundColor: darkMode ? "#374151" : "#f3f4f6",
+            color: darkMode ? "#f9fafb" : "#111827",
+            borderRadius: "0.5rem",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: "600",
+          }}
+        >
+          ←
+        </button>
+        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+          <h1 style={{ fontSize: "1.25rem", fontWeight: "600" }}>⏰ Sueño</h1>
+          <p style={{ fontSize: "0.875rem", color: darkMode ? "#d1d5db" : "#6b7280" }}>
+            Registra tus horas de descanso
+          </p>
+        </div>
+      </div>
 
-            {/* Header */}
-            <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-              <h1
-                style={{
-                  fontSize: "1.25rem",
-                  fontWeight: "600",
-                  color: "#2c3e50",
-                }}
-              >
-                ⏰ Sueño
-              </h1>
-              <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-                Registra tus horas de descanso
-              </p>
-            </div>
-          </div>
-      {/* Contenido */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          padding: "1rem",
-          overflowY: "auto",
-        }}
-      >
-        {/* Contenedor de 300px */}
+      {/* Contenido principal */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "1rem", overflowY: "auto" }}>
         <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
-          <div
-            style={{ height: "1px", backgroundColor: "#e5e7eb", margin: "1rem 0" }}
-          />
+          {/* Input para meta diaria */}
+          <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+            <label style={{ fontSize: "0.875rem", color: darkMode ? "#d1d5db" : "#6b7280", marginRight: "0.5rem" }}>
+              Meta diaria:
+            </label>
+            <input
+              type="number"
+              value={metaHoras}
+              onChange={(e) => setMetaHoras(Number(e.target.value))}
+              min={1}
+              style={{
+                width: "60px",
+                padding: "0.25rem",
+                borderRadius: "0.25rem",
+                border: `1px solid ${darkMode ? "#4b5563" : "#d1d5db"}`,
+                textAlign: "center",
+                backgroundColor: darkMode ? "#374151" : "white",
+                color: darkMode ? "#f9fafb" : "#111827",
+              }}
+            />
+          </div>
 
           {/* Estadísticas */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <h3
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: "600",
-                marginBottom: "0.5rem",
-                color: "#2c3e50",
-              }}
-            >
-              Estadísticas
-            </h3>
-            <div
-              style={{
-                background: "white",
-                padding: "1rem",
-                borderRadius: "1rem",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "1.5rem",
-                  fontWeight: "700",
-                  color: "#3498db",
-                }}
-              >
-                {sumaHoy} h
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-                Hoy ({progreso}% de {metaHoras}h)
-              </div>
-              <div
-                style={{
-                  marginTop: "0.5rem",
-                  fontSize: "0.875rem",
-                  color: "#2c3e50",
-                }}
-              >
-                Promedio 7 días: <strong>{promedio7} h</strong>
-              </div>
-            </div>
-          </div>
-
-          {/* Gráfico de sueño */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <h3
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: "600",
-                marginBottom: "0.5rem",
-                color: "#2c3e50",
-              }}
-            >
-              Últimos 7 días
-            </h3>
-            <div
-              style={{
-                background: "white",
-                padding: "1rem",
-                borderRadius: "1rem",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-              }}
-            >
-              {renderGrafico()}
-            </div>
-          </div>
-
           <div
-            style={{ height: "1px", backgroundColor: "#e5e7eb", margin: "1rem 0" }}
-          />
+            style={{
+              background: darkMode ? "#374151" : "white",
+              padding: "1rem",
+              borderRadius: "1rem",
+              boxShadow: darkMode ? "0 4px 6px rgba(0,0,0,0.5)" : "0 4px 6px rgba(0,0,0,0.1)",
+              marginBottom: "1rem",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ fontSize: "2rem", fontWeight: "700" }}>{sumaHoy} h</div>
+            <p style={{ fontSize: "0.75rem", color: darkMode ? "#d1d5db" : "#6b7280" }}>
+              Hoy ({progreso}% de tu meta diaria)
+            </p>
+            <p style={{ fontSize: "0.75rem", color: darkMode ? "#d1d5db" : "#6b7280" }}>
+              Promedio últimos 7 días: {promedio7} h
+            </p>
+          </div>
 
-          {/* Botón añadir */}
-          <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-            <button
-              onClick={() => {
-                setEditingId(null);
-                setFecha(hoyStr);
-                setHoras("");
-                setShowModal(true);
-              }}
-              style={{
-                backgroundColor: "#3498db",
-                color: "white",
-                border: "none",
-                borderRadius: "50%",
-                width: "50px",
-                height: "50px",
-                fontSize: "1.5rem",
-                cursor: "pointer",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-              }}
-            >
-              +
-            </button>
+          {/* Gráfico */}
+          <div
+            style={{
+              background: darkMode ? "#374151" : "white",
+              padding: "1rem",
+              borderRadius: "1rem",
+              boxShadow: darkMode ? "0 4px 6px rgba(0,0,0,0.5)" : "0 4px 6px rgba(0,0,0,0.1)",
+              marginBottom: "1rem",
+            }}
+          >
+            {renderGrafico()}
           </div>
 
           {/* Lista de registros */}
-          <h3
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              marginBottom: "0.5rem",
-              color: "#2c3e50",
-            }}
-          >
-            Registros
-          </h3>
           <div
             style={{
-              background: "white",
+              background: darkMode ? "#374151" : "white",
               padding: "1rem",
               borderRadius: "1rem",
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-              minHeight: "100px",
+              boxShadow: darkMode ? "0 4px 6px rgba(0,0,0,0.5)" : "0 4px 6px rgba(0,0,0,0.1)",
             }}
           >
             {registros.length === 0 ? (
-              <div
-                style={{ textAlign: "center", color: "#6b7280", padding: "1rem" }}
-              >
-                No hay registros aún
-              </div>
+              <p style={{ textAlign: "center", color: darkMode ? "#d1d5db" : "#6b7280" }}>No hay registros aún</p>
             ) : (
               registros.map((r) => (
-                <div
-                  key={r.id}
-                  style={{
-                    padding: "0.5rem 0",
-                    borderBottom: "1px solid #f3f4f6",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
+                <div key={r.id} style={{ display: "flex", justifyContent: "space-between", padding: "0.25rem 0" }}>
                   <div>
-                    <strong>{r.horas} h</strong>
-                    <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-                      {r.fecha}
-                    </div>
+                    <strong style={{ color: darkMode ? "#f9fafb" : "#111827" }}>{r.horas} h</strong>
+                    <div style={{ fontSize: "0.75rem", color: darkMode ? "#d1d5db" : "#6b7280" }}>{r.fecha}</div>
                   </div>
                   <div style={{ display: "flex", gap: "0.25rem" }}>
                     <button
                       onClick={() => editar(r.id)}
                       style={{
-                        backgroundColor: "#f3f4f6",
+                        backgroundColor: darkMode ? "#4b5563" : "#e5e7eb",
                         border: "none",
-                        padding: "0.25rem 0.5rem",
                         borderRadius: "0.25rem",
+                        padding: "0.25rem 0.5rem",
                         cursor: "pointer",
                         fontSize: "0.75rem",
                       }}
@@ -455,12 +354,13 @@ function Sueno() {
                     <button
                       onClick={() => eliminar(r.id)}
                       style={{
-                        backgroundColor: "#ffdddd",
+                        backgroundColor: "#ef4444",
                         border: "none",
-                        padding: "0.25rem 0.5rem",
                         borderRadius: "0.25rem",
+                        padding: "0.25rem 0.5rem",
                         cursor: "pointer",
                         fontSize: "0.75rem",
+                        color: "white",
                       }}
                     >
                       Eliminar
@@ -469,6 +369,83 @@ function Sueno() {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <div style={{ padding: "1rem", background: darkMode ? "#1f2937" : "#f9fafb", flexShrink: 0 }}>
+        <div style={{ maxWidth: "400px", margin: "0 auto", textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "space-around", marginTop: "0.5rem" }}>
+            <button
+              onClick={() => navigate("/")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: darkMode ? "#374151" : "#e5e7eb",
+                color: "white",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
+              🏠
+            </button>
+            <button
+              onClick={() => navigate("/hidratacion")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: darkMode ? "#374151" : "#3b82f6",
+                color: "white",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
+              💧
+            </button>
+            <button
+              onClick={() => navigate("/actividad")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: darkMode ? "#374151" : "#e5e7eb",
+                color: "white",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
+              💪
+            </button>
+            <button
+              onClick={() => navigate("/sueño")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#3b82f6",
+                color: "white",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
+              ⏰
+            </button>
+            <button
+              onClick={() => navigate("/dieta")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: darkMode ? "#374151" : "#e5e7eb",
+                border: "none",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                color: "white",
+              }}
+            >
+              🍽️
+            </button>
           </div>
         </div>
       </div>
@@ -488,77 +465,70 @@ function Sueno() {
             alignItems: "center",
             zIndex: 1000,
           }}
-          onClick={() => setShowModal(false)}
         >
           <div
             style={{
-              backgroundColor: "white",
+              background: darkMode ? "#1f2937" : "white",
               padding: "1.5rem",
               borderRadius: "1rem",
               width: "90%",
-              maxWidth: "400px",
+              maxWidth: "300px",
             }}
-            onClick={(e) => e.stopPropagation()}
           >
-            <h3
+            <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: darkMode ? "#f3f4f6" : "#111827" }}>
+              {editingId ? "Editar registro" : "Nuevo registro"}
+            </h2>
+
+            <label style={{ display: "block", marginBottom: "0.25rem", color: darkMode ? "#f3f4f6" : "#111827" }}>
+              Fecha
+            </label>
+            <input
+              type="date"
+              value={fecha}
+              max={hoyStr}
+              onChange={(e) => setFecha(e.target.value)}
               style={{
-                fontSize: "1.25rem",
-                fontWeight: "600",
+                width: "100%",
+                padding: "0.5rem",
+                borderRadius: "0.5rem",
+                border: "1px solid " + (darkMode ? "#4b5563" : "#d1d5db"),
                 marginBottom: "1rem",
-                color: "#2c3e50",
+                background: darkMode ? "#111827" : "white",
+                color: darkMode ? "#f3f4f6" : "#111827",
               }}
-            >
-              {editingId ? "Editar registro" : "Añadir sueño"}
-            </h3>
+            />
 
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem" }}>Fecha</label>
-              <input
-                type="date"
-                value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
-                max={hoyStr} // No permite fechas futuras
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.5rem",
-                }}
-              />
-            </div>
+            <label style={{ display: "block", marginBottom: "0.25rem", color: darkMode ? "#f3f4f6" : "#111827" }}>
+              Horas
+            </label>
+            <input
+              type="number"
+              value={horas}
+              onChange={(e) => setHoras(e.target.value)}
+              min="0"
+              max="24"
+              step="0.1"
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                borderRadius: "0.5rem",
+                border: "1px solid " + (darkMode ? "#4b5563" : "#d1d5db"),
+                marginBottom: "1rem",
+                background: darkMode ? "#111827" : "white",
+                color: darkMode ? "#f3f4f6" : "#111827",
+              }}
+            />
 
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem" }}>
-                Horas dormidas
-              </label>
-              <input
-                type="number"
-                min="0"
-                max="24"
-                step="0.1"
-                placeholder="ej. 7.5"
-                value={horas}
-                onChange={(e) => setHoras(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.5rem",
-                }}
-              />
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
               <button
                 onClick={() => setShowModal(false)}
                 style={{
                   padding: "0.5rem 1rem",
-                  backgroundColor: "#e5e7eb",
-                  color: "#374151",
-                  border: "none",
                   borderRadius: "0.5rem",
+                  border: "none",
+                  backgroundColor: "#ef4444",
+                  color: "white",
                   cursor: "pointer",
-                  fontWeight: "600",
                 }}
               >
                 Cancelar
@@ -567,12 +537,11 @@ function Sueno() {
                 onClick={handleSave}
                 style={{
                   padding: "0.5rem 1rem",
-                  backgroundColor: "#3b82f6",
-                  color: "white",
-                  border: "none",
                   borderRadius: "0.5rem",
+                  border: "none",
+                  backgroundColor: "#34d399",
+                  color: "white",
                   cursor: "pointer",
-                  fontWeight: "600",
                 }}
               >
                 Guardar
@@ -581,92 +550,6 @@ function Sueno() {
           </div>
         </div>
       )}
-
-      {/* FOOTER */}
-      <div
-        style={{
-          padding: "1rem",
-          background: "#f9fafb",
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ maxWidth: "400px", margin: "0 auto", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "space-around", marginTop: "0.5rem" }}>
-            <button
-                key={'home'}
-                onClick={() => navigate("/")}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: "#e5e7eb",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "0.5rem",
-                  cursor: "pointer",
-                  fontWeight: "600"
-                }}
-              >
-                🏠
-            </button>
-            <button
-                key={'agua'}
-                onClick={() => navigate("/hidratacion")}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: "#e5e7eb",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "0.5rem",
-                  cursor: "pointer",
-                  fontWeight: "600"
-                }}
-              >
-                💧
-            </button>
-            <button
-                key={'actividad'}
-                onClick={() => navigate("/actividad")}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: "#e5e7eb",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "0.5rem",
-                  cursor: "pointer",
-                  fontWeight: "600"
-                }}
-              >
-                💪
-            </button>
-            <button
-                key={'sueno'}
-                onClick={() => navigate("/sueno")}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: "#3b82f6",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "0.5rem",
-                  cursor: "pointer",
-                  fontWeight: "600"
-                }}
-              >
-                ⏰
-            </button>
-            <button
-              onClick={() => navigate("/dieta")}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-              }}
-            >
-              🍽️
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

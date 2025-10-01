@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "./ThemeContext";
 
 function Actividad({activities, setActivities, duration, setDuration, calories, setCalories}) {
   const [showModal, setShowModal] = useState(false);
   const [activityType, setActivityType] = useState("running");
   const [customActivity, setCustomActivity] = useState("");
+  const { darkMode } = useTheme();
 
   const navigate = useNavigate();
 
@@ -60,6 +62,15 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
     return activityNames[type] || type;
   };
 
+  // Variables de colores para dark mode
+  const bgMain = darkMode ? "#1f2937" : "#f9fafb";
+  const bgCard = darkMode ? "#374151" : "white";
+  const textPrimary = darkMode ? "#f9fafb" : "#2c3e50";
+  const textSecondary = darkMode ? "#d1d5db" : "#6b7280";
+  const borderInput = darkMode ? "#4b5563" : "#d1d5db";
+  const btnBg = darkMode ? "#2563eb" : "#3b82f6";
+  const btnBgSecondary = darkMode ? "#4b5563" : "#e5e7eb";
+
   return (
     <div
       style={{
@@ -67,7 +78,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
         flexDirection: "column",
         height: "100vh",
         width: "100%",
-        backgroundColor: "#f9fafb",
+        backgroundColor: bgMain,
         fontFamily: "sans-serif",
       }}
     >
@@ -78,8 +89,8 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
             style={{
               marginBottom: "1rem",
               padding: "0.25rem 0.75rem",
-              backgroundColor: "#f3f4f6",
-              color: "#111827",
+              backgroundColor: btnBgSecondary,
+              color: textPrimary,
               borderRadius: "0.5rem",
               border: "none",
               cursor: "pointer",
@@ -91,8 +102,8 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
 
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-            <h1 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#2c3e50" }}>💪 Actividad</h1>
-            <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+            <h1 style={{ fontSize: "1.25rem", fontWeight: "600", color: textPrimary }}>💪 Actividad</h1>
+            <p style={{ fontSize: "0.875rem", color: textSecondary }}>
               Registra tu actividad diaria
             </p>
           </div>
@@ -110,45 +121,45 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
         {/* Contenedor de 300px */}
         <div style={{ maxWidth: "300px", margin: "0 auto", width: "100%" }}>
 
-          <div style={{ height: "1px", backgroundColor: "#e5e7eb", margin: "1rem 0" }}></div>
+          <div style={{ height: "1px", backgroundColor: borderInput, margin: "1rem 0" }}></div>
 
           {/* Estadísticas Semanales */}
           <div style={{ marginBottom: "1.5rem" }}>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.5rem", color: "#2c3e50" }}>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.5rem", color: textPrimary }}>
               Estadísticas Semanales
             </h3>
             <div style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr 1fr",
-              background: "white",
+              background: bgCard,
               padding: "1rem",
               borderRadius: "1rem",
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              boxShadow: darkMode ? "0 4px 6px rgba(0,0,0,0.6)" : "0 4px 6px rgba(0,0,0,0.1)",
               textAlign: "center"
             }}>
               <div>
                 <div style={{ fontSize: "1.5rem", fontWeight: "700", color: "#3498db" }}>{totalMinutes}</div>
-                <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>min totales</div>
+                <div style={{ fontSize: "0.75rem", color: textSecondary }}>min totales</div>
               </div>
               <div>
                 <div style={{ fontSize: "1.5rem", fontWeight: "700", color: "#3498db" }}>{totalCalories}</div>
-                <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>calorías</div>
+                <div style={{ fontSize: "0.75rem", color: textSecondary }}>calorías</div>
               </div>
               <div>
                 <div style={{ fontSize: "1.5rem", fontWeight: "700", color: "#3498db" }}>{totalExercises}</div>
-                <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>ejercicios</div>
+                <div style={{ fontSize: "0.75rem", color: textSecondary }}>ejercicios</div>
               </div>
             </div>
           </div>
 
-          <div style={{ height: "1px", backgroundColor: "#e5e7eb", margin: "1rem 0" }}></div>
+          <div style={{ height: "1px", backgroundColor: borderInput, margin: "1rem 0" }}></div>
 
           {/* Botón para añadir actividad */}
           <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
             <button
               onClick={() => setShowModal(true)}
               style={{
-                backgroundColor: "#3498db",
+                backgroundColor: btnBg,
                 color: "white",
                 border: "none",
                 borderRadius: "50%",
@@ -156,29 +167,29 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 height: "50px",
                 fontSize: "1.5rem",
                 cursor: "pointer",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                boxShadow: darkMode ? "0 4px 6px rgba(0,0,0,0.6)" : "0 4px 6px rgba(0,0,0,0.1)",
               }}
             >
               +
             </button>
           </div>
 
-          <div style={{ height: "1px", backgroundColor: "#e5e7eb", margin: "1rem 0" }}></div>
+          <div style={{ height: "1px", backgroundColor: borderInput, margin: "1rem 0" }}></div>
 
           {/* Actividades de Hoy */}
           <div style={{ marginBottom: "1.5rem" }}>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.5rem", color: "#2c3e50" }}>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.5rem", color: textPrimary }}>
               Actividades de Hoy
             </h3>
             <div style={{
-              background: "white",
+              background: bgCard,
               padding: "1rem",
               borderRadius: "1rem",
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              boxShadow: darkMode ? "0 4px 6px rgba(0,0,0,0.6)" : "0 4px 6px rgba(0,0,0,0.1)",
               minHeight: "100px"
             }}>
               {activities.length === 0 ? (
-                <div style={{ textAlign: "center", color: "#6b7280", padding: "1rem" }}>
+                <div style={{ textAlign: "center", color: textSecondary, padding: "1rem" }}>
                   No hay actividades registradas hoy
                 </div>
               ) : (
@@ -187,15 +198,15 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                     key={activity.id} 
                     style={{
                       padding: "0.5rem 0",
-                      borderBottom: "1px solid #f3f4f6",
+                      borderBottom: `1px solid ${darkMode ? "#4b5563" : "#f3f4f6"}`,
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center"
                     }}
                   >
                     <div>
-                      <strong>{getActivityName(activity.type)}</strong>
-                      <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                      <strong style={{ color: textPrimary }}>{getActivityName(activity.type)}</strong>
+                      <div style={{ fontSize: "0.875rem", color: textSecondary }}>
                         {activity.duration} min
                         {activity.calories > 0 && ` • ${activity.calories} calorías`}
                       </div>
@@ -205,8 +216,8 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                         setActivities(activities.filter(a => a.id !== activity.id));
                       }}
                       style={{
-                        backgroundColor: "#f3f4f6",
-                        color: "#6b7280",
+                        backgroundColor: btnBgSecondary,
+                        color: textSecondary,
                         border: "none",
                         borderRadius: "0.25rem",
                         padding: "0.25rem 0.5rem",
@@ -222,22 +233,22 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
             </div>
           </div>
 
-          {/* Contador de Pasos - MOVIDO AL FINAL */}
+          {/* Contador de Pasos */}
           <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.5rem", color: "#2c3e50" }}>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: "600", marginBottom: "0.5rem", color: textPrimary }}>
               👟 Contador de Pasos
             </h3>
             <div style={{
-              background: "white",
+              background: bgCard,
               padding: "1rem",
               borderRadius: "1rem",
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              boxShadow: darkMode ? "0 4px 6px rgba(0,0,0,0.6)" : "0 4px 6px rgba(0,0,0,0.1)",
             }}>
               <div style={{ textAlign: "center", marginBottom: "1rem" }}>
                 <div style={{ fontSize: "2rem", fontWeight: "700", color: "#ef4444" }}>
                   {stepsData.steps.toLocaleString()}
                 </div>
-                <div style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                <div style={{ fontSize: "0.875rem", color: textSecondary }}>
                   pasos de {stepsData.goal.toLocaleString()}
                 </div>
               </div>
@@ -245,7 +256,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
               {/* Barra de progreso */}
               <div style={{ 
                 height: "8px", 
-                backgroundColor: "#e5e7eb", 
+                backgroundColor: borderInput, 
                 borderRadius: "4px", 
                 overflow: "hidden",
                 marginBottom: "0.5rem"
@@ -261,7 +272,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 display: "flex", 
                 justifyContent: "space-between",
                 fontSize: "0.75rem",
-                color: "#6b7280"
+                color: textSecondary
               }}>
                 <span>{Math.round(stepsProgress)}% completado</span>
                 <span>{stepsData.goal - stepsData.steps} pasos restantes</span>
@@ -278,19 +289,19 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                   <div style={{ fontSize: "1rem", fontWeight: "600", color: "#3498db" }}>
                     {stepsData.distance} km
                   </div>
-                  <div style={{ fontSize: "0.65rem", color: "#6b7280" }}>Distancia</div>
+                  <div style={{ fontSize: "0.65rem", color: textSecondary }}>Distancia</div>
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: "1rem", fontWeight: "600", color: "#f59e0b" }}>
                     {stepsData.calories}
                   </div>
-                  <div style={{ fontSize: "0.65rem", color: "#6b7280" }}>Calorías</div>
+                  <div style={{ fontSize: "0.65rem", color: textSecondary }}>Calorías</div>
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: "1rem", fontWeight: "600", color: "#10b981" }}>
                     {stepsData.minutes}
                   </div>
-                  <div style={{ fontSize: "0.65rem", color: "#6b7280" }}>Minutos</div>
+                  <div style={{ fontSize: "0.65rem", color: textSecondary }}>Minutos</div>
                 </div>
               </div>
             </div>
@@ -302,7 +313,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
       <div
         style={{
           padding: "1rem",
-          background: "#f9fafb",
+          background: bgMain,
           flexShrink: 0,
         }}
       >
@@ -312,8 +323,8 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
               onClick={() => navigate("/")}
               style={{
                 padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                color: "white",
+                backgroundColor: btnBgSecondary,
+                color: textPrimary,
                 border: "none",
                 borderRadius: "0.5rem",
                 cursor: "pointer",
@@ -326,8 +337,8 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
               onClick={() => navigate("/hidratacion")}
               style={{
                 padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                color: "white",
+                backgroundColor: btnBgSecondary,
+                color: textPrimary,
                 border: "none",
                 borderRadius: "0.5rem",
                 cursor: "pointer",
@@ -340,7 +351,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
               onClick={() => navigate("/actividad")}
               style={{
                 padding: "0.5rem 1rem",
-                backgroundColor: "#3b82f6",
+                backgroundColor: btnBg,
                 color: "white",
                 border: "none",
                 borderRadius: "0.5rem",
@@ -354,8 +365,8 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
               onClick={() => navigate("/sueño")}
               style={{
                 padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
-                color: "white",
+                backgroundColor: btnBgSecondary,
+                color: textPrimary,
                 border: "none",
                 borderRadius: "0.5rem",
                 cursor: "pointer",
@@ -368,7 +379,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
               onClick={() => navigate("/dieta")}
               style={{
                 padding: "0.5rem 1rem",
-                backgroundColor: "#e5e7eb",
+                backgroundColor: btnBgSecondary,
                 border: "none",
                 borderRadius: "0.5rem",
                 cursor: "pointer",
@@ -399,7 +410,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
         >
           <div
             style={{
-              backgroundColor: "white",
+              backgroundColor: bgCard,
               padding: "1.5rem",
               borderRadius: "1rem",
               width: "90%",
@@ -407,13 +418,13 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: "#2c3e50" }}>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: textPrimary }}>
               Añadir Actividad
             </h3>
 
             {/* Input para actividad personalizada */}
             <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", color: textPrimary }}>
                 Actividad personalizada (opcional)
               </label>
               <input
@@ -424,14 +435,16 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  border: "1px solid #d1d5db",
+                  border: `1px solid ${borderInput}`,
                   borderRadius: "0.5rem",
+                  backgroundColor: bgMain,
+                  color: textPrimary,
                 }}
               />
             </div>
 
             <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", color: textPrimary }}>
                 Tipo de actividad
               </label>
               <select
@@ -440,8 +453,10 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  border: "1px solid #d1d5db",
+                  border: `1px solid ${borderInput}`,
                   borderRadius: "0.5rem",
+                  backgroundColor: bgMain,
+                  color: textPrimary,
                 }}
               >
                 <option value="running">Correr</option>
@@ -454,7 +469,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
             </div>
 
             <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", color: textPrimary }}>
                 Duración (min)
               </label>
               <input
@@ -465,14 +480,16 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  border: "1px solid #d1d5db",
+                  border: `1px solid ${borderInput}`,
                   borderRadius: "0.5rem",
+                  backgroundColor: bgMain,
+                  color: textPrimary,
                 }}
               />
             </div>
 
             <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem", color: "#2c3e50" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", color: textPrimary }}>
                 Calorías (opcional)
               </label>
               <input
@@ -484,8 +501,10 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  border: "1px solid #d1d5db",
+                  border: `1px solid ${borderInput}`,
                   borderRadius: "0.5rem",
+                  backgroundColor: bgMain,
+                  color: textPrimary,
                 }}
               />
             </div>
@@ -495,8 +514,8 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 onClick={() => setShowModal(false)}
                 style={{
                   padding: "0.5rem 1rem",
-                  backgroundColor: "#e5e7eb",
-                  color: "#374151",
+                  backgroundColor: btnBgSecondary,
+                  color: textPrimary,
                   border: "none",
                   borderRadius: "0.5rem",
                   cursor: "pointer",
@@ -509,7 +528,7 @@ function Actividad({activities, setActivities, duration, setDuration, calories, 
                 onClick={handleAddActivity}
                 style={{
                   padding: "0.5rem 1rem",
-                  backgroundColor: "#3b82f6",
+                  backgroundColor: btnBg,
                   color: "white",
                   border: "none",
                   borderRadius: "0.5rem",
