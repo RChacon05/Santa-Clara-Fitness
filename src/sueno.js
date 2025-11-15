@@ -328,14 +328,47 @@ function Sueno() {
               boxShadow: darkMode ? "0 4px 6px rgba(0,0,0,0.5)" : "0 4px 6px rgba(0,0,0,0.1)",
             }}
           >
+            <div style={{ textAlign: "center", marginBottom: "0.5rem" }}>
+              <button
+                onClick={() => {
+                  setEditingId(null);
+                  setFecha(hoyStr);
+                  setHoras("");
+                  setShowModal(true);
+                }}
+                style={{
+                  backgroundColor: "#3b82f6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "0.5rem",
+                  padding: "0.5rem 1rem",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
+              >
+                + Agregar registro
+              </button>
+            </div>
+
             {registros.length === 0 ? (
-              <p style={{ textAlign: "center", color: darkMode ? "#d1d5db" : "#6b7280" }}>No hay registros aún</p>
+              <p style={{ textAlign: "center", color: darkMode ? "#d1d5db" : "#6b7280" }}>
+                No hay registros aún
+              </p>
             ) : (
               registros.map((r) => (
-                <div key={r.id} style={{ display: "flex", justifyContent: "space-between", padding: "0.25rem 0" }}>
+                <div
+                  key={r.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "0.25rem 0",
+                  }}
+                >
                   <div>
                     <strong style={{ color: darkMode ? "#f9fafb" : "#111827" }}>{r.horas} h</strong>
-                    <div style={{ fontSize: "0.75rem", color: darkMode ? "#d1d5db" : "#6b7280" }}>{r.fecha}</div>
+                    <div style={{ fontSize: "0.75rem", color: darkMode ? "#d1d5db" : "#6b7280" }}>
+                      {r.fecha}
+                    </div>
                   </div>
                   <div style={{ display: "flex", gap: "0.25rem" }}>
                     <button
@@ -370,6 +403,7 @@ function Sueno() {
               ))
             )}
           </div>
+
         </div>
       </div>
 
@@ -395,7 +429,7 @@ function Sueno() {
               onClick={() => navigate("/hidratacion")}
               style={{
                 padding: "0.5rem 1rem",
-                backgroundColor: darkMode ? "#374151" : "#3b82f6",
+                backgroundColor: darkMode ? "#374151" : "#e5e7eb",
                 color: "white",
                 border: "none",
                 borderRadius: "0.5rem",
